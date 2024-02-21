@@ -7,7 +7,7 @@ import { createTopology } from '@libp2p/topology'
 import type { PeerId } from '@libp2p/interface-peer-id'
 import { CustomEvent, EventEmitter } from '@libp2p/interfaces/events'
 
-import { MessageCache } from './message-cache.js'
+import { IMessageCache, MessageCache } from "./message-cache.js";
 import { RPC, IRPC } from './message/rpc.js'
 import * as constants from './constants.js'
 import { shuffle, messageIdToString } from './utils/index.js'
@@ -82,6 +82,7 @@ import { ConnectionManager } from '@libp2p/interface-connection-manager'
 import { PeerStore } from '@libp2p/interface-peer-store'
 import { Multiaddr } from '@multiformats/multiaddr'
 import { multiaddrToIPStr } from './utils/multiaddr.js'
+import { SeenCache } from "./seen-cache";
 
 type ConnectionDirection = 'inbound' | 'outbound'
 
@@ -254,7 +255,7 @@ export class GossipSub extends EventEmitter<GossipsubEvents> implements PubSub<G
   private readonly floodsubPeers = new Set<PeerIdStr>()
 
   /** Cache of seen messages */
-  private readonly seenCache: SimpleTimeCache<void>
+  private readonly seenCache: SeenCache<void>
 
   /**
    * Map of peer id and AcceptRequestWhileListEntry
@@ -338,7 +339,7 @@ export class GossipSub extends EventEmitter<GossipsubEvents> implements PubSub<G
   /**
    * A message cache that contains the messages for last few heartbeat ticks
    */
-  private readonly mcache: MessageCache
+  private readonly mcache: IMessageCache
 
   /** Peer score tracking */
   public readonly score: PeerScore

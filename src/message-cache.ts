@@ -21,6 +21,48 @@ interface MessageCacheEntry {
   iwantCounts: Map<PeerIdStr, number>
 }
 
+export interface IMessageCache {
+  notValidatedCount: number
+  size: number
+  /**
+   * Adds a message to the current window and the cache
+   * Returns true if the message is not known and is inserted in the cache
+   */
+  put(messageId: MessageId, msg: RPC.IMessage, validated: boolean): boolean
+
+  observeDuplicate(msgId: MsgIdStr, fromPeerIdStr: PeerIdStr): void
+
+  /**
+   * Retrieves a message from the cache by its ID, if it is still present
+   */
+  get(msgId: Uint8Array): RPC.IMessage | undefined;
+
+  /**
+   * Increases the iwant count for the given message by one and returns the message together
+   * with the iwant if the message exists.
+   */
+  getWithIWantCount(msgIdStr: string, p: string): { msg: RPC.IMessage; count: number } | null;
+
+  /**
+   * Retrieves a list of message IDs for a set of topics
+   */
+  getGossipIDs(topics: Set<string>): Map<string, Uint8Array[]>;
+
+  /**
+   * Gets a message with msgId and tags it as validated.
+   * This function also returns the known peers that have sent us this message. This is used to
+   * prevent us sending redundant messages to peers who have already propagated it.
+   */
+  validate(msgId: MsgIdStr): { message: RPC.IMessage; originatingPeers: Set<PeerIdStr> } | null;
+
+  /**
+   * Shifts the current window, discarding messages older than this.history.length of the cache
+   */
+  shift(): void
+
+  remove(msgId: MsgIdStr): MessageCacheEntry | null
+}
+
 export class MessageCache {
   msgs = new Map<MsgIdStr, MessageCacheEntry>()
 
