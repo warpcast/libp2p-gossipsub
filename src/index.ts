@@ -123,6 +123,8 @@ export interface GossipsubOpts extends GossipsubOptsSpec, PubSubInit {
   msgIdToStrFn: MsgIdToStrFn
   /** override the default MessageCache */
   messageCache: IMessageCache
+  /** override the default SeenCache */
+  seenCache: SeenCache<void>
   /** peer score parameters */
   scoreParams: Partial<PeerScoreParams>
   /** peer score thresholds */
@@ -434,7 +436,7 @@ export class GossipSub extends EventEmitter<GossipsubEvents> implements PubSub<G
 
     this.opts = opts as Required<GossipOptions>
     this.direct = new Set(opts.directPeers.map((p) => p.id.toString()))
-    this.seenCache = new SimpleTimeCache<void>({ validityMs: opts.seenTTL })
+    this.seenCache = opts.seenCache || new SimpleTimeCache<void>({ validityMs: opts.seenTTL })
     this.publishedMessageIds = new SimpleTimeCache<void>({ validityMs: opts.seenTTL })
 
     if (options.msgIdFn) {
