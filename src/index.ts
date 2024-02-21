@@ -122,7 +122,7 @@ export interface GossipsubOpts extends GossipsubOptsSpec, PubSubInit {
   /** Uint8Array message id to string function */
   msgIdToStrFn: MsgIdToStrFn
   /** override the default MessageCache */
-  messageCache: MessageCache
+  messageCache: IMessageCache
   /** peer score parameters */
   scoreParams: Partial<PeerScoreParams>
   /** peer score thresholds */
